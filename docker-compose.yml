@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+
+  database:
+    image: mysql:8.0.13
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: base
+      MYSQL_DATABASE: basedb
+      MYSQL_USER: base
+      MYSQL_PASSWORD: base
+    volumes:
+      - /home/tomek/mysql/base/data:/var/lib/mysql
+
+  application:
+    build:
+      context: ${APP_DIR}/build
+    depends_on:
+      - database
+    ports:
+     - 9999:8080
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8306:8080
+
+  wait_for_database:
+    image: waisbrot/wait
+    links:
+      - database
+    environment:
+      - TARGETS=database:3306
